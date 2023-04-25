@@ -52,7 +52,7 @@ namespace ToDo.Services
             {
                 throw new NotFoundException("Wrong task Id");
             }
-            var task = _context.Tasks.FirstOrDefault(c => c.Id == id);
+            var task = _context.Tasks.Include(c => c.TaskTimes).FirstOrDefault(c => c.Id == id);
             if (task.UserId != _userContextService.GetUserId)
             {
                 throw new ForbiddenException("Nie masz uprawnień");
@@ -61,7 +61,8 @@ namespace ToDo.Services
             var time = new TaskTime();
             time.Time = DateTime.Now;
             time.TaskProgress = progress;
-            task.TaskTimes = new List<TaskTime> { time };
+            task.TaskTimes.Add(time);
+            //task.TaskTimes = new List<TaskTime> { time };
             _context.SaveChanges();
             return time.Id;
         }
@@ -70,18 +71,7 @@ namespace ToDo.Services
         {
             var userId = _userContextService.GetUserId;
             var user = _context.Users.FirstOrDefault(c => c.Id == userId);
-            var tasks = new List<Entities.Task>();
-            if (user.Role == Role.Admin)
-            {
-                var dbTasks = _context.Tasks.Include(c => c.TaskTimes);
-                tasks.AddRange(dbTasks);
-            }
-            else
-            {
-                var dbTasks = _context.Tasks.Include(c => c.TaskTimes).Where(c => c.UserId == userId);
-                tasks.AddRange(dbTasks);
-            }
-            return tasks;
+            return user.Role == Role.Admin ? _context.Tasks.Include(c => c.TaskTimes).ToList() : _context.Tasks.Include(c => c.TaskTimes).Where(c => c.UserId == userId).ToList(); ;
         }
 
         public void DeleteTask(int id)
