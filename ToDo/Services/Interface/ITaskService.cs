@@ -15,5 +15,7 @@ namespace ToDo.Services.Interface
         int ChangeTaskState(TaskProgress progress, int id);
 
         List<Entities.Task> GetTasks();
+
+        void DeleteTask(int id);
     }
 }

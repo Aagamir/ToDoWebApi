@@ -43,5 +43,12 @@ namespace ToDo.Controllers
             var tasks = _service.GetTasks();
             return Ok(tasks);
         }
+
+        [HttpDelete("task/{id}")]
+        public IActionResult DeleteTask([FromRoute] int id)
+        {
+            _service.DeleteTask(id);
+            return NoContent();
+        }
     }
 }

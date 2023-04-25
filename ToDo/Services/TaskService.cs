@@ -83,5 +83,16 @@ namespace ToDo.Services
             }
             return tasks;
         }
+
+        public void DeleteTask(int id)
+        {
+            var task = _context.Tasks.FirstOrDefault(c => c.Id == id);
+            if (task.UserId != _userContextService.GetUserId)
+            {
+                throw new ForbiddenException("Nie masz uprawnień");
+            }
+            _context.Tasks.Remove(task);
+            _context.SaveChanges();
+        }
     }
 }
